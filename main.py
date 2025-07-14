@@ -1,3 +1,8 @@
+import subprocess
+subprocess.run(["playwright", "install", "chromium"])
+
+
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from playwright.sync_api import sync_playwright
