@@ -1,13 +1,10 @@
-import subprocess
-subprocess.run(["playwright", "install", "chromium"])
-
-
-
+from fastapi import FastAPI
+from datetime import datetime
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from playwright.sync_api import sync_playwright
-from datetime import datetime
 
+app = FastAPI()
 
 def scrape_indeed(job_title="Product Manager", location="Bangalore"):
     with sync_playwright() as p:
@@ -37,21 +34,24 @@ def scrape_indeed(job_title="Product Manager", location="Bangalore"):
         browser.close()
         return job_list
 
-
 def write_to_google_sheet(jobs):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("gcreds.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name("googlecreds.json", scope)
     client = gspread.authorize(creds)
 
-    sheet = client.open("Indeed Jobs").sheet1  # Sheet name must match
+    sheet = client.open("Indeed Jobs").sheet1
     sheet.clear()
     sheet.append_row(["Title", "Company", "Location", "Summary", "Scraped At"])
 
     for job in jobs:
         sheet.append_row([job["title"], job["company"], job["location"], job["summary"], job["scraped_at"]])
 
+@app.get("/")
+def read_root():
+    return {"message": "✅ Indeed Scraper is live"}
 
-if __name__ == "__main__":
-    scraped_jobs = scrape_indeed("Product Manager", "Bangalore")
-    write_to_google_sheet(scraped_jobs)
-    print("✅ Scraping done and saved to Google Sheet!")
+@app.get("/scrape")
+def scrape_and_save():
+    jobs = scrape_indeed("Product Manager", "Bangalore")
+    write_to_google_sheet(jobs)
+    return {"message": f"✅ Scraped and saved {len(jobs)} jobs to Google Sheet"}
