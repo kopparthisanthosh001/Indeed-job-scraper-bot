@@ -1,0 +1,11 @@
+{
+  "name": "Python Playwright Bot",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "postCreateCommand": "apt-get update && apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libxcomposite1 libxdamage1 libxfixes3 libgbm1 libxkbcommon0 libasound2 libxrandr2 libxss1 libgtk-3-0 libdrm2 libxshmfence1 && pip install -r requirements.txt && playwright install",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python"]
+    }
+  }
+}
